@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 const EmailFetcher = () => {
   const [emails, setEmails] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [apiKey, setApiKey] = useState(localStorage.getItem("openai_api_key") || "");
+  const [geminiApiKey, setGeminiApiKey] = useState(localStorage.getItem("gemini_api_key") || "");
   const [classifiedEmails, setClassifiedEmails] = useState([]);
 
   useEffect(() => {
@@ -14,8 +14,8 @@ const EmailFetcher = () => {
   }, []);
 
   const handleApiKeySave = () => {
-    localStorage.setItem("openai_api_key", apiKey);
-    alert("API Key saved!");
+    localStorage.setItem("gemini_api_key", geminiApiKey);
+    alert("Gemini API Key saved!");
   };
 
   const fetchEmails = async () => {
@@ -24,7 +24,6 @@ const EmailFetcher = () => {
       scope: "https://www.googleapis.com/auth/gmail.readonly",
       callback: async (tokenResponse) => {
         const accessToken = tokenResponse.access_token;
-        console.log("Access Token:", accessToken);
         setIsAuthenticated(true);
 
         try {
@@ -36,10 +35,6 @@ const EmailFetcher = () => {
               },
             }
           );
-
-          if (!listRes.ok) {
-            throw new Error(`Failed to fetch email list: ${listRes.status}`);
-          }
 
           const listData = await listRes.json();
           const messages = listData.messages || [];
@@ -65,44 +60,29 @@ const EmailFetcher = () => {
   };
 
   const classifyEmails = async () => {
-    if (!apiKey) {
-      alert("Please enter your OpenAI API key first.");
+    if (!geminiApiKey) {
+      alert("Please enter your Gemini API key first.");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/classify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ emails, openaiApiKey: apiKey }),
+        body: JSON.stringify({ emails, geminiApiKey }),
       });
-  
-      const contentType = response.headers.get("content-type");
-      const text = await response.text();
-  
-      if (!response.ok) {
-        console.error("Server error:", text);
-        alert("Classification failed. See console for details.");
-        return;
-      }
-  
-      if (!contentType.includes("application/json")) {
-        console.error("Non-JSON response from server:", text);
-        alert("Server returned unexpected content. See console.");
-        return;
-      }
-  
-      const data = JSON.parse(text); // safely parse now that it's verified
-      const parsed = JSON.parse(data.result);
-      setClassifiedEmails(parsed);
+
+      const data = await response.json();
+      // const parsed = JSON.parse(data.result);
+      setClassifiedEmails(data.result);
+      console.log("Classified Emails:", data.result); 
     } catch (err) {
-      console.error("Classification failed:", err.message || err);
-      alert("Classification failed. See console for details.");
+      console.error("Classification failed:", err);
+      alert("Classification failed. Check the console.");
     }
   };
-  
 
   return (
     <div className="mt-4 w-full max-w-3xl">
@@ -110,9 +90,9 @@ const EmailFetcher = () => {
         <input
           type="password"
           className="p-2 border rounded w-full"
-          placeholder="Enter your OpenAI API Key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
+          placeholder="Enter your Gemini API Key"
+          value={geminiApiKey}
+          onChange={(e) => setGeminiApiKey(e.target.value)}
         />
         <button
           className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
