@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const EmailFetcher = () => {
   const [emails, setEmails] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [apiKey, setApiKey] = useState(localStorage.getItem("openai_api_key") || "");
+  const [classifiedEmails, setClassifiedEmails] = useState([]);
+
+  useEffect(() => {
+    const savedEmails = localStorage.getItem("emails");
+    if (savedEmails) {
+      setEmails(JSON.parse(savedEmails));
+    }
+  }, []);
+
+  const handleApiKeySave = () => {
+    localStorage.setItem("openai_api_key", apiKey);
+    alert("API Key saved!");
+  };
 
   const fetchEmails = async () => {
     const client = window.google.accounts.oauth2.initTokenClient({
-      client_id:
-        "489217701387-6tf3k977lmp1bhpvv7i3kc7c05g8clch.apps.googleusercontent.com",
+      client_id: "489217701387-6tf3k977lmp1bhpvv7i3kc7c05g8clch.apps.googleusercontent.com",
       scope: "https://www.googleapis.com/auth/gmail.readonly",
       callback: async (tokenResponse) => {
         const accessToken = tokenResponse.access_token;
@@ -15,7 +28,6 @@ const EmailFetcher = () => {
         setIsAuthenticated(true);
 
         try {
-          // Get email message IDs
           const listRes = await fetch(
             "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15",
             {
@@ -32,16 +44,12 @@ const EmailFetcher = () => {
           const listData = await listRes.json();
           const messages = listData.messages || [];
 
-          // Fetch details for each message
           const emailPromises = messages.map((msg) =>
-            fetch(
-              `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }
-            ).then((res) => res.json())
+            fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }).then((res) => res.json())
           );
 
           const fullEmails = await Promise.all(emailPromises);
@@ -56,8 +64,64 @@ const EmailFetcher = () => {
     client.requestAccessToken();
   };
 
+  const classifyEmails = async () => {
+    if (!apiKey) {
+      alert("Please enter your OpenAI API key first.");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/classify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ emails, openaiApiKey: apiKey }),
+      });
+  
+      const contentType = response.headers.get("content-type");
+      const text = await response.text();
+  
+      if (!response.ok) {
+        console.error("Server error:", text);
+        alert("Classification failed. See console for details.");
+        return;
+      }
+  
+      if (!contentType.includes("application/json")) {
+        console.error("Non-JSON response from server:", text);
+        alert("Server returned unexpected content. See console.");
+        return;
+      }
+  
+      const data = JSON.parse(text); // safely parse now that it's verified
+      const parsed = JSON.parse(data.result);
+      setClassifiedEmails(parsed);
+    } catch (err) {
+      console.error("Classification failed:", err.message || err);
+      alert("Classification failed. See console for details.");
+    }
+  };
+  
+
   return (
-    <div className="mt-4">
+    <div className="mt-4 w-full max-w-3xl">
+      <div className="mb-4">
+        <input
+          type="password"
+          className="p-2 border rounded w-full"
+          placeholder="Enter your OpenAI API Key"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+        />
+        <button
+          className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={handleApiKeySave}
+        >
+          Save API Key
+        </button>
+      </div>
+
       <button
         onClick={fetchEmails}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -65,23 +129,28 @@ const EmailFetcher = () => {
         {isAuthenticated ? "Refetch Emails" : "Sign in & Fetch Emails"}
       </button>
 
-      <ul className="mt-4 text-left max-w-xl mx-auto">
-        {emails.map((email, index) => (
-          <li key={index} className="border p-2 mb-2 rounded bg-gray-100">
-            <p>
-              <strong>Subject:</strong>{" "}
-              {email.payload?.headers?.find((h) => h.name === "Subject")?.value}
-            </p>
-            <p>
-              <strong>From:</strong>{" "}
-              {email.payload?.headers?.find((h) => h.name === "From")?.value}
-            </p>
-            <p>
-              <strong>Snippet:</strong> {email.snippet}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <button
+        onClick={classifyEmails}
+        className="ml-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+      >
+        Classify Emails
+      </button>
+
+      <div className="mt-6">
+        {classifiedEmails.length > 0 && (
+          <>
+            <h2 className="text-xl font-bold mb-2">Classified Emails:</h2>
+            <ul className="text-left">
+              {classifiedEmails.map((item, index) => (
+                <li key={index} className="mb-2 p-3 border rounded bg-gray-100">
+                  <p><strong>Subject:</strong> {item.subject}</p>
+                  <p><strong>Category:</strong> {item.category}</p>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 };
