@@ -1,12 +1,17 @@
-import React from "react";
-import EmailFetcher from "./EmailFetcher";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Emails from "./pages/Emails";
+
 
 function App() {
   return (
-    <div className="flex flex-col items-center justify-center h-[540px]">
-      <h1 className="text-2xl font-bold mb-4">Email Classifier</h1>
-      <EmailFetcher />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/emails" element={<Emails/>} />
+
+      </Routes>
+    </Router>
   );
 }
 
