@@ -14,3 +14,6 @@ export const categoryColors = {
   Spam: "bg-gray-300 border-gray-400 text-gray-700",
   General: "bg-purple-100 border-purple-400 text-purple-700",
 };
+
+export const BASE_URL =
+  location.hostname === "localhost" ? "http://localhost:5000/classify" : "https://ai-email-classifier.onrender.com/classify";

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import EmailListItem from "../components/EmailListItem";
+import { BASE_URL } from "../utils/emailUtils";
 
 const Emails = () => {
   const [emails, setEmails] = useState([]);
@@ -44,7 +45,7 @@ const Emails = () => {
     setClassificationError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/classify", {
+      const response = await fetch(BASE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emails, geminiApiKey }),
