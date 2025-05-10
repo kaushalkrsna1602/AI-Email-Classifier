@@ -79,7 +79,6 @@ npm run dev
 ```bash
 cd client
 npm install
-# create a .env file with VITE_GOOGLE_CLIENT_ID and add your client Id
 npm run dev
 ```
 

@@ -21,7 +21,7 @@ const Home = () => {
   // This function initializes the Google OAuth2 client and requests an access token
 const fetchEmails = async (max) => {
     const client = window.google.accounts.oauth2.initTokenClient({
-      client_id: import.meta.env.GOOGLE_CLIENT_ID,
+      client_id: "489217701387-6tf3k977lmp1bhpvv7i3kc7c05g8clch.apps.googleusercontent.com",
       scope: "https://www.googleapis.com/auth/gmail.readonly",
       callback: async (tokenResponse) => {
         const accessToken = tokenResponse.access_token;
