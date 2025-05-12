@@ -11,30 +11,40 @@ const Emails = () => {
   const [isClassifying, setIsClassifying] = useState(false);
   const [classificationError, setClassificationError] = useState(null);
   const [emailCount, setEmailCount] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPic, setUserPic] = useState("");
+
   const navigate = useNavigate();
 
-  // Load emails from local storage when the component mounts 
   useEffect(() => {
     const savedEmails = localStorage.getItem("emails");
+    const savedCreds = localStorage.getItem("googleCredentials");
+
     if (savedEmails) {
       setEmails(JSON.parse(savedEmails));
     }
+
+    if (savedCreds) {
+      const creds = JSON.parse(savedCreds);
+      setUserName(creds.name || "");
+      setUserEmail(creds.email || "");
+      setUserPic(creds.picture || "https://via.placeholder.com/40"); // fallback avatar
+    }
   }, []);
 
-  //function to handle logout 
   const logout = () => {
     localStorage.removeItem("gemini_api_key");
     localStorage.removeItem("emails");
     localStorage.removeItem("user_email");
+    localStorage.removeItem("googleCredentials");
     navigate("/");
   };
 
-  // Function to handle the toggle of email expansion 
   const handleToggleExpand = useCallback((index) => {
     setExpandedEmailId((prevId) => (prevId === index ? null : index));
   }, []);
 
-  // Function to classify emails using the Gemini API 
   const classifyEmails = useCallback(async () => {
     if (!geminiApiKey) {
       alert("Gemini API Key missing.");
@@ -68,14 +78,12 @@ const Emails = () => {
     }
   }, [emails, geminiApiKey]);
 
-  // Function to handle the change of email count 
   const handleEmailCountChange = (e) => {
     const count = parseInt(e.target.value, 10);
     if (!isNaN(count)) {
       const savedEmails = JSON.parse(localStorage.getItem("emails")) || [];
       const slicedEmails = savedEmails.slice(0, count);
 
-      // localStorage.setItem("emails", JSON.stringify(slicedEmails));
       setEmails(slicedEmails);
       setClassifiedEmails([]);
       setExpandedEmailId(null);
@@ -87,9 +95,20 @@ const Emails = () => {
   const isClassified = classifiedEmails.length > 0;
 
   return (
-    <div className="max-w-5xl mx-auto mt-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">KAUSHAL GMAIL CLASSIFIER</h1>
+    <div className="max-w-5xl mx-auto mt-6 px-4">
+      {/* User Info Section */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4">
+          <img
+            src={userPic}
+            alt="User Avatar"
+            className="w-10 h-10 rounded-full border"
+          />
+          <div>
+            <p className="text-lg font-semibold">{userName}</p>
+            <p className="text-sm text-gray-600">{userEmail}</p>
+          </div>
+        </div>
         <div className="flex items-center gap-4">
           <select
             value={emailCount}
@@ -102,7 +121,10 @@ const Emails = () => {
             <option value="15">15</option>
           </select>
 
-          <button onClick={logout} className="border text-black px-4 py-2 rounded hover:bg-black hover:text-white">
+          <button
+            onClick={logout}
+            className="border text-black px-4 py-2 rounded hover:bg-black hover:text-white"
+          >
             Logout
           </button>
 
@@ -116,16 +138,19 @@ const Emails = () => {
         </div>
       </div>
 
+      {/* Error Display */}
       {classificationError && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <strong className="font-bold">Error:</strong> {classificationError}
         </div>
       )}
 
+      {/* No Emails */}
       {emails.length === 0 && !isClassifying && (
         <div className="text-gray-500 italic">No emails found in local storage.</div>
       )}
 
+      {/* Email List */}
       <div className="space-y-4">
         {emailsToDisplay.map((email, index) => (
           <EmailListItem
@@ -142,3 +167,4 @@ const Emails = () => {
 };
 
 export default Emails;
+     
