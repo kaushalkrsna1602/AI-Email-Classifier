@@ -14,7 +14,7 @@ A full-stack Gmail email classification tool using Google OAuth, Node.js, React,
 - ✅ Google OAuth-based login
 - 📥 Fetch Gmail emails using Gmail API
 - 🧠 Classify emails using Gemini API
-- 🗂️ Toggle how many emails to load from localStorage (5, 10, 15)
+- 🗂️ Fetch User info using Gmail API
 - 📜 Expand/collapse email details
 - 🔐 Logout and secure token clearing
 

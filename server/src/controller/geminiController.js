@@ -65,7 +65,7 @@ ${emailText}
     let parsed;
     try {
       parsed = JSON.parse(text);
-      console.log("Gemini result:\n", parsed);
+      // console.log("Gemini result:\n", parsed);
       res.json({ result: parsed });
     } catch (err) {
       console.error("JSON parsing failed:", err.message);

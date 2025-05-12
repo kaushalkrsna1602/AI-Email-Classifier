@@ -43,7 +43,6 @@ const Home = () => {
           };
 
           localStorage.setItem("googleCredentials", JSON.stringify(credentials));
-          localStorage.setItem("user_email", email);
           console.log("User info:", credentials);
 
           // Fetch emails
