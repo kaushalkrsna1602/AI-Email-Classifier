@@ -81,31 +81,34 @@ const Home = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="max-w-md mx-auto mt-10">
-        <input
-          type="password"
-          placeholder="Enter Gemini API Key"
-          className="p-2 border rounded w-full mb-4"
-          value={geminiApiKey}
-          onChange={(e) => setGeminiApiKey(e.target.value)}
-        />
-        <button
-          onClick={handleApiKeySave}
-          className="w-full border text-black py-2 mb-2 rounded hover:bg-black hover:text-white"
-        >
-          Save API Key
-        </button>
+  <div className="flex items-center justify-center min-h-screen px-4">
+    <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-center">Welcome to MagicSlides</h2>
 
-        <button
-          onClick={() => fetchEmails(15)}
-          className="w-full border text-black py-2 mb-2 rounded hover:bg-black hover:text-white"
-        >
-          Login with Google
-        </button>
-      </div>
+      <input
+        type="password"
+        placeholder="Enter Gemini API Key"
+        className="p-2 border rounded w-full mb-4 text-sm"
+        value={geminiApiKey}
+        onChange={(e) => setGeminiApiKey(e.target.value)}
+      />
+
+      <button
+        onClick={handleApiKeySave}
+        className="w-full border text-black py-2 mb-3 rounded hover:bg-black hover:text-white text-sm transition"
+      >
+        Save API Key
+      </button>
+
+      <button
+        onClick={() => fetchEmails(15)}
+        className="w-full border text-black py-2 rounded hover:bg-black hover:text-white text-sm transition"
+      >
+        Login with Google
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default Home;
