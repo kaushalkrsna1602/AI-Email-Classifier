@@ -43,7 +43,7 @@ const Home = () => {
           };
 
           localStorage.setItem("googleCredentials", JSON.stringify(credentials));
-          console.log("User info:", credentials);
+          // console.log("User info:", credentials);
 
           // Fetch emails
           const listRes = await fetch(
@@ -83,7 +83,7 @@ const Home = () => {
   return (
   <div className="flex items-center justify-center min-h-screen px-4">
     <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-center">Welcome to AI Emali Classifier</h2>
+      <h2 className="text-xl font-semibold mb-4 text-center">Welcome to AI Email Classifier</h2>
 
       <input
         type="password"

@@ -30,7 +30,7 @@ const Emails = () => {
       const creds = JSON.parse(savedCreds);
       setUserName(creds.name || "");
       setUserEmail(creds.email || "");
-      setUserPic(creds.picture || "https://via.placeholder.com/40"); // fallback avatar
+      setUserPic(creds.picture);
     }
   }, []);
 
@@ -105,7 +105,7 @@ return (
       {/* Profile */}
       <div className="flex items-center space-x-4">
         <img
-          src={userPic}
+          src={userPic || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4YreOWfDX3kK-QLAbAL4ufCPc84ol2MA8Xg&s"}
           alt="User"
           className="w-10 h-10 rounded-full border"
         />
@@ -115,7 +115,8 @@ return (
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      {/* Email Count , Logout and classify button */}  
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"> 
         <select
           value={emailCount}
           onChange={handleEmailCountChange}
