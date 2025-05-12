@@ -17,15 +17,20 @@ const Emails = () => {
 
   const navigate = useNavigate();
 
-  // Fetch emails from local storage 
+  // Fetch emails and user-info from local storage 
   useEffect(() => {
+    const savedEmails = localStorage.getItem("emails");
     const savedCreds = localStorage.getItem("googleCredentials");
+
+    if (savedEmails) {
+      setEmails(JSON.parse(savedEmails));
+    }
 
     if (savedCreds) {
       const creds = JSON.parse(savedCreds);
       setUserName(creds.name || "");
       setUserEmail(creds.email || "");
-      setUserPic(creds.picture || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4YreOWfDX3kK-QLAbAL4ufCPc84ol2MA8Xg&s");
+      setUserPic(creds.picture || "https://via.placeholder.com/40"); // fallback avatar
     }
   }, []);
 
